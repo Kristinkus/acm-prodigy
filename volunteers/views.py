@@ -1,16 +1,48 @@
-from django.shortcuts import render, redirect
-from django.views.generic import CreateView
+from django.shortcuts import redirect
+from django.views.generic import CreateView, View
 from django.contrib.auth.views import LoginView
 
 from config.settings import RECAPTCHA_PUBLIC_KEY
 from main.forms import AuthUserForm, CreateUserForm
 from main.mixins import LanguageMixin
 from main.utils import Configuration
+from volunteers.forms import VolunteerForm
 from volunteers.models import Volunteer
 
 
-def index(request):
-    return render(request, 'volunteers/index.html')
+
+class IndexView(LanguageMixin, View):
+    template_name = 'volunteers/index.html'
+
+    def get(self, request, *args, **kwargs):
+        form = None
+        if Volunteer.objects.filter(user=request.user).exists():
+            form = VolunteerForm(instance=request.user.volunteer)
+        else:
+            form = VolunteerForm()
+
+        return self.render_page(
+            request,
+            self.template_name,
+            {
+                'form': form,
+            }
+        )
+
+    def post(self, request, *args, **kwargs):
+        form = VolunteerForm(request.POST, instance=request.user.volunteer)
+        if form.is_valid():
+            form.save()
+            return redirect('volunteers-index')
+
+        return self.render_page(
+            request,
+            self.template_name,
+            {
+                'form': form,
+            }
+        )
+
 
 def create_volunteer(request):
     if not request.method == 'POST' or\

@@ -72,6 +72,15 @@ class VolunteerPositions(models.Model):
         return self.name
 
 
+class Event(models.Model):
+    name = models.CharField(max_length=100)
+    date = models.DateTimeField()
+    is_open = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
 class VolunteerParticipation(models.Model):
     STATUS = [
         ('Pending', 'pending'),
@@ -81,7 +90,7 @@ class VolunteerParticipation(models.Model):
     volunteer = models.ForeignKey(
         Volunteer,
         on_delete=models.CASCADE,
-        related_name='application'
+        related_name='applications'
     )
     position_wishes = models.ManyToManyField(
         VolunteerPositions,
@@ -89,10 +98,15 @@ class VolunteerParticipation(models.Model):
         related_name='position_wishes'
     )
     position = models.ForeignKey(
-        Volunteer,
+        VolunteerPositions,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
+        related_name='volunteers'
+    )
+    event = models.ForeignKey(
+        Event,
+        on_delete=models.CASCADE,
         related_name='volunteers'
     )
     status = models.CharField(max_length=10, choices=STATUS)

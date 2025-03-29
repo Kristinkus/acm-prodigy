@@ -12,6 +12,10 @@ Index
         <button>Create</button>
     </form>
 {% else %}
-    You have volunteer account.
+    <form method="post">
+        {% csrf_token %}
+        {{form}}
+        <button type="submit">Save</button>
+    </form>
 {% endif %}
 {% endblock %}

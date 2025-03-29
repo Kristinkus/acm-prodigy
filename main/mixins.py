@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from main.models import Translation
+from volunteers.models import Event, Volunteer
 
 
 class LanguageMixin:
@@ -19,16 +20,25 @@ class LanguageMixin:
             for translation in translations
         }
 
+    def __get_events(self, request):
+        volunteer_events = Event.objects.none()
+        if Volunteer.objects.filter(user=request.user).exists():
+            volunteer_events = set([application.event for application in request.user.volunteer.applications.all()])
+
+        return volunteer_events | set(Event.objects.filter(is_open=True))
+
     def render_page(self, request, template_name, context=None):
         if context is None:
             context = {}
 
         user_language = self.get_user_language(request)
         translations_dict = self.get_translations(user_language)
+        events = self.__get_events(request)
 
         _context = {
             'tr': translations_dict,
             'selected_language': user_language,
+            'events': events,
         }
 
         _context.update(context)
@@ -42,10 +52,12 @@ class LanguageMixin:
 
         user_language = self.get_user_language(self.request)
         translations_dict = self.get_translations(user_language)
+        events = self.__get_events(self.request)
 
         _context = {
             'tr': translations_dict,
             'selected_language': user_language,
+            'events': events,
         }
 
         _context.update(context)
