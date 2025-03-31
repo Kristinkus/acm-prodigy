@@ -21,9 +21,16 @@ class LanguageMixin:
         }
 
     def __get_events(self, request):
-        volunteer_events = Event.objects.none()
-        if Volunteer.objects.filter(user=request.user).exists():
-            volunteer_events = set([application.event for application in request.user.volunteer.applications.all()])
+        volunteer_events = set(Event.objects.none())
+        if request.user.is_authenticated and \
+            Volunteer.objects.filter(user=request.user).exists()\
+        :
+            volunteer_events = set(
+                [
+                    application.event
+                    for application in request.user.volunteer.applications.all()
+                ]
+            )
 
         return volunteer_events | set(Event.objects.filter(is_open=True))
 

@@ -35,24 +35,20 @@ class Volunteer(models.Model):
     group = models.CharField(max_length=6, blank=True, null=True)
     rating = models.IntegerField(default=50)
 
+    @property
+    def telegram_link(self):
+        return f'https://t.me/{self.telegram}'
+
     def __str__(self) -> str:
         return f'{self.lastname} {self.firstname}'
+
+    class Meta:
+        verbose_name = 'Волонтер'
+        verbose_name_plural = 'Волонтеры'
 
 
 class Locations(models.Model):
     name = models.CharField(max_length=50)
-    responsible = models.ForeignKey(
-        Volunteer,
-        related_name='responsibilites',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-    )
-    volunteers = models.ManyToManyField(
-        Volunteer,
-        related_name='locations',
-        blank=True,
-    )
     administrator = models.ForeignKey(
         Volunteer,
         related_name='admin_locations',
@@ -64,12 +60,20 @@ class Locations(models.Model):
     def __str__(self) -> str:
         return f'Зона: {self.name}'
 
+    class Meta:
+        verbose_name = 'Локация'
+        verbose_name_plural = 'Локации'
+
 
 class VolunteerPositions(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = 'Должность'
+        verbose_name_plural = 'Должности'
 
 
 class Event(models.Model):
@@ -80,36 +84,52 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Мероприятие'
+        verbose_name_plural = 'Мероприятия'
+
 
 class VolunteerParticipation(models.Model):
     STATUS = [
-        ('Pending', 'pending'),
-        ('Declined', 'declined'),
-        ('Approved', 'approved'),
+        ('pending', 'Pending'),
+        ('declined', 'Declined'),
+        ('approved', 'Approved'),
     ]
     volunteer = models.ForeignKey(
         Volunteer,
         on_delete=models.CASCADE,
-        related_name='applications'
+        related_name='applications',
     )
     position_wishes = models.ManyToManyField(
         VolunteerPositions,
         blank=True,
-        related_name='position_wishes'
+        related_name='position_wishes',
     )
     position = models.ForeignKey(
         VolunteerPositions,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-        related_name='volunteers'
+        related_name='volunteers',
     )
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
-        related_name='volunteers'
+        related_name='volunteers',
     )
-    status = models.CharField(max_length=10, choices=STATUS)
+    status = models.CharField(max_length=10, choices=STATUS, default=STATUS[0][1])
+    location = models.ForeignKey(
+        Locations,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='volunteers',
+    )
+    is_responsible = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        return f'Участие {self.volunteer}'
+        return f'Участие {self.volunteer} в {self.event}'
+
+    class Meta:
+        verbose_name = 'Заявка волонтера'
+        verbose_name_plural = 'Заявки волонтеров'
