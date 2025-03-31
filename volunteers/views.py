@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, View
 from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from config.settings import RECAPTCHA_PUBLIC_KEY
 from main.forms import AuthUserForm, CreateUserForm
@@ -22,7 +23,7 @@ from volunteers.models import (
     VolunteerParticipation,
 )
 
-class IndexView(LanguageMixin, View):
+class IndexView(LoginRequiredMixin, LanguageMixin, View):
     template_name = 'volunteers/index.html'
 
     def get(self, request, *args, **kwargs):
