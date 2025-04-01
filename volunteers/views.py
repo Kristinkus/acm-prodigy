@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import CreateView, View
+from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -45,6 +46,7 @@ class IndexView(LoginRequiredMixin, LanguageMixin, View):
         form = VolunteerForm(request.POST, instance=request.user.volunteer)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Данные успешно сохранены.')
             return redirect('volunteers-index')
 
         return self.render_page(
@@ -104,6 +106,7 @@ class ParticipationDetailView(VolunteerAccessMixin, LanguageMixin, View):
             for item in form.cleaned_data['position_wishes']:
                 application.position_wishes.add(item.id)
             application.save()
+            messages.info(request, 'Заявка на участие в мероприятии подана.')
             return redirect('participation-detail', event.id)
 
         return self.render_page(
@@ -166,6 +169,7 @@ def create_volunteer(request):
         return redirect('volunteers-index')
 
     Volunteer.objects.create(user=request.user)
+    messages.success(request, "Профиль волонтера был успешно создан.")
     return redirect('volunteers-index')
 
 

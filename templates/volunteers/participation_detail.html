@@ -10,10 +10,10 @@
 </h1>
 {% if participation %}
     {% if participation.status == 'approved' or request.user.is_superuser %}
-    <a class="btn btn-secondary" href="{% url 'event-detail' event.id %}">Volunteers</a>
+    <a class="btn btn-primary" href="{% url 'event-detail' event.id %}">Volunteers</a>
     {% endif %}
     <ul>
-        <li>Статус заявки: {{participation.status}}</li>
+        <li>Статус заявки: {{participation.get_status_display}}</li>
         {% if participation.status == 'approved' %}
         <li>Должность:
             {% if participation.position %}

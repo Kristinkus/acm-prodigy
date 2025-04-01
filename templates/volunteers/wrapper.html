@@ -18,6 +18,15 @@
         </div>
       </div>
     </main>
+    {% if messages %}
+      <ul class="system-messages">
+        {% for message in messages %}
+          <li type="{{message.tags}}">
+            {{ message }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
     {% include 'volunteers/includes/footer.html' %}
     <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
   </body>
