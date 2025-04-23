@@ -5,6 +5,7 @@ from django.conf import settings
 from django.http import HttpResponse
 
 from main.utils import Configuration
+
 from main.models import (
     Participant,
     Team,
